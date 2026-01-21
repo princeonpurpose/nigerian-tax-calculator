@@ -1,0 +1,59 @@
+# Netlify Configuration for Nigerian Tax Calculator
+
+[build]
+  # Build command
+  command = "npm run build"
+  # Output directory
+  publish = "dist"
+  # Functions directory
+  functions = "netlify/functions"
+
+[build.environment]
+  # Node version
+  NODE_VERSION = "20"
+
+# Redirect all requests to index.html for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# OAuth callback redirect
+[[redirects]]
+  from = "/auth/callback"
+  to = "/index.html"
+  status = 200
+
+# API function routes
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Environment variables to set in Netlify dashboard:
+# - VITE_SUPABASE_URL
+# - VITE_SUPABASE_ANON_KEY
+# - SUPABASE_URL (for functions)
+# - SUPABASE_SERVICE_ROLE_KEY (for functions - keep secret!)
+# - SENDGRID_API_KEY (for email notifications - optional)
+
+# Scheduled function for sending reminder emails
+# Runs daily at 8:00 AM UTC
+[functions."send-reminders"]
+  schedule = "0 8 * * *"
